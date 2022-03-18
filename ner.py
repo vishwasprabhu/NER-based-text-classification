@@ -16,9 +16,7 @@ class NERDataset(Dataset):
 
     def __len__(self):
         """ Length of the dataset """
-        ### BEGIN SOLUTION
         L = len(self.df)-4
-        ### END SOLUTION
         return L
 
     def __getitem__(self, idx):
@@ -26,9 +24,7 @@ class NERDataset(Dataset):
         
         x[idx] should be a numpy array of shape (5,)
         """
-        ### BEGIN SOLUTION
         x, y = np.array(self.df['word'].values[idx:idx+5]), np.array(self.df['label'].values[idx+2])
-        ### END SOLUTION
         return x, y 
 
 
@@ -37,10 +33,8 @@ def label_encoding(cat_arr):
 
    First take the array of unique values and sort them (as strings). 
    """
-   ### BEGIN SOLUTION
    sorted_list = sorted(set(list(cat_arr.astype('str'))))
    vocab2index = {word:i for i,word in enumerate(sorted_list)}
-   ### END SOLUTION
    return vocab2index
 
 
@@ -52,10 +46,8 @@ def dataset_encoding(df, vocab2index, label2index):
     """
     V = len(vocab2index)
     df_enc = df.copy()
-    ### BEGIN SOLUTION
     df_enc['word'] = df_enc['word'].map(vocab2index).fillna(len(vocab2index)).astype(int)
     df_enc['label'] = df_enc['label'].map(label2index).fillna(len(label2index)).astype(int)
-    ### END SOLUTION
     return df_enc
 
 
@@ -66,10 +58,8 @@ class NERModel(nn.Module):
         """
         super(NERModel, self).__init__()
         torch.manual_seed(seed)
-        ### BEGIN SOLUTION
         self.emb = nn.Embedding(vocab_size, emb_size)
         self.linear = nn.Linear(5*emb_size,n_class)
-        ### END SOLUTION
         
     def forward(self, x):
         """Apply the model to x
@@ -79,11 +69,9 @@ class NERModel(nn.Module):
            .flatten works
         3. Apply a linear layer
         """
-        ### BEGIN SOLUTION
         x = self.emb(x)
         x = x.flatten(1,2)
         x = self.linear(x)
-        ### END SOLUTION
         return x
 
 def get_optimizer(model, lr = 0.01, wd = 0.0):
@@ -92,7 +80,6 @@ def get_optimizer(model, lr = 0.01, wd = 0.0):
 
 def train_model(model, optimizer, train_dl, valid_dl, epochs=10):
     for i in range(epochs):
-        ### BEGIN SOLUTION
         model.train()
         losses = []
         for x, y in train_dl:
@@ -103,13 +90,11 @@ def train_model(model, optimizer, train_dl, valid_dl, epochs=10):
             optimizer.step()
             losses.append(loss.item())
         train_loss = np.mean(losses)
-        ### END SOLUTION
         valid_loss, valid_acc = valid_metrics(model, valid_dl)
         print("train loss  %.3f val loss %.3f and accuracy %.3f" % (
             train_loss, valid_loss, valid_acc))
 
 def valid_metrics(model, valid_dl):
-    ### BEGIN SOLUTION
     losses = []
     y_preds = []
     ys = []
@@ -124,6 +109,5 @@ def valid_metrics(model, valid_dl):
         y_preds.append(y_pred)
     val_loss = np.mean(losses)
     val_acc = accuracy_score(np.concatenate(ys), np.concatenate(y_preds))
-    ### END SOLUTION
     return val_loss, val_acc
 
